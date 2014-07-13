@@ -1,3 +1,11 @@
+#using <mscorlib.dll>
+
+void Hello() {
+  System::Console::WriteLine("Hello!");
+}
+
+#pragma managed(off) // has to be above <sampgdk/core.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -52,6 +60,7 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
+  Hello();
   return sampgdk::Load(ppData);
 }
 
