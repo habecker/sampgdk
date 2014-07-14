@@ -1,7 +1,8 @@
 #using <mscorlib.dll>
 
-void Hello() {
-  System::Console::WriteLine("Hello!");
+void PrintStuff(const char *stuff) {
+  System::String^ s = gcnew System::String(stuff);
+  System::Console::WriteLine(s);
 }
 
 #pragma managed(off) // has to be above <sampgdk/core.h>
@@ -55,12 +56,19 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
   return false;
 }
 
+PLUGIN_EXPORT bool PLUGIN_CALL OnPublicCall(AMX *amx,
+                                            const char *name,
+                                            cell *params,
+                                            cell *retval) {
+  PrintStuff(name);
+  return true;
+}
+
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() {
   return sampgdk::Supports() | SUPPORTS_PROCESS_TICK;
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData) {
-  Hello();
   return sampgdk::Load(ppData);
 }
 
