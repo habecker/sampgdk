@@ -20,18 +20,18 @@ import re
 import sys
 
 def strip_license_blocks(s):
-  return re.sub(r'/\*\s*Copyright.*?Zeex(.|[\r\n])*?\*/[\r\n]*', '', s, re.M | re.S)
+  return re.sub(rb'/\*\s*Copyright.*?Zeex(.|[\r\n])*?\*/[\r\n]*', b'', s, re.M | re.S)
 
 def extract_path(include):
-  match = re.match('["<](.*)[">]', include)
+  match = re.match(rb'["<](.*)[">]', include)
   if match is not None:
     return match.group(1)
   return None
 
 def resolve_include(filename, include, include_dirs):
   if include is not None:
-    rel_path = extract_path(include)
-    if include.startswith('"'):
+    rel_path = extract_path(include).decode('utf-8')
+    if include.startswith(b'"'):
       path = os.path.join(os.path.dirname(filename), rel_path)
       if os.path.exists(path):
         return os.path.realpath(path)
@@ -42,7 +42,7 @@ def resolve_include(filename, include, include_dirs):
   return None
 
 def find_includes(text):
-  return re.findall(r'#include\s*(["<].*[">])', text)
+  return re.findall(rb'#include\s*(["<].*[">])', text)
 
 def find_first_include(text):
   includes = find_includes(text)
@@ -147,12 +147,12 @@ def main(argv):
 
   if args.source_preamble is not None:
     with open(args.source_preamble, 'rb') as in_file:
-      c_file.write(in_file.read().replace('\r', ''))
-      c_file.write('\n')
+      c_file.write(in_file.read().replace(b'\r', b''))
+      c_file.write(b'\n')
   if args.header_preamble is not None:
     with open(args.header_preamble, 'rb') as in_file:
-      h_file.write(in_file.read().replace('\r', ''))
-      h_file.write('\n')
+      h_file.write(in_file.read().replace(b'\r', b''))
+      h_file.write(b'\n')
 
   headers = sort_files(headers, include_dirs)
   all_files = sort_files(sources + headers, include_dirs)
@@ -168,14 +168,14 @@ def main(argv):
         include = find_first_include(line)
         include_path = resolve_include(file, include, include_dirs)
         if include_path is None:
-          out_file.write(line.replace('\r', '') + '\n')
+          out_file.write(line.replace(b'\r', b'') + b'\n')
         elif include_path in headers and file not in headers:
           if not header_included:
-            out_file.write('#include "%s"\n' % os.path.basename(header_path))
+            out_file.write(b'#include "%s"\n' % os.path.basename(header_path).encode('utf-8'))
             header_included = True
         else:
-          out_file.write('/* #include %s */\n' % include)
-      out_file.write('\n')
+          out_file.write(b'/* #include %s */\n' % include)
+      out_file.write(b'\n')
 
   for out_file in (c_file, h_file):
     out_file.close()
